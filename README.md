@@ -7,3 +7,12 @@ To run the app :
 * run bokeh serve --show gp_approx_app/
 
 Have fun!
+
+
+<img src="./spiky_approx.png"
+     alt="1e-3 noise, 1e-1.4 scale, 16 points"
+     style="float: left; margin-right: 10px;" />
+     
+<img src="./smooth_approx.png"
+     alt="1e-3 noise, 1e-1.4 scale, 32 points"
+     style="float: left; margin-right: 10px;" />
