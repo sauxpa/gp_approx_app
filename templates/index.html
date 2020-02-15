@@ -1,0 +1,35 @@
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+{% extends base %}
+
+{% block title %}Bokeh Gapminder Example{% endblock %}
+
+{% block postamble %}
+  <style>
+    {% include 'styles.css' %}
+  </style>
+{% endblock %}
+
+{% block contents %}
+  <div class="content">
+    <h1>GP approximation of continuous functions on a compact interval</h1>
+
+    <p> Given $n$ observations $y_1, \dots, y_n$ of a continuous function $f$ at $x_1, \dots, x_n$, the GP regression formula with kernel $k$ is:
+      $${\hat{f}(x) = \sum_{i=1}^n \alpha_i k(x_i, x)}$$
+      with $\alpha = (K+\sigma_{noise}^2I)^{-1}y$, $K=(k(x_i,x_j))_{i,j=1, \dots, n}$.
+      Below we use the Gaussian kernel : $${k(x,x') = e^{-\frac{(x-x')^2}{2\sigma_{scale}^2}}.}$$
+    </p>
+
+    {{ super() }}
+
+
+  </div>
+{% endblock %}
