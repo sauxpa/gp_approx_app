@@ -22,10 +22,23 @@
   <div class="content">
     <h1>GP approximation of continuous functions on a compact interval</h1>
 
-    <p> Given $n$ observations $y_1, \dots, y_n$ of a continuous function $f$ at $x_1, \dots, x_n$, the GP regression formula with kernel $k$ is:
       $${\hat{f}(x) = \sum_{i=1}^n \alpha_i k(x_i, x)}$$
+      <p> Given $n$ observations $y_1, \dots, y_n$ of a continuous function $f$ at $x_1, \dots, x_n$, the GP regression formula with kernel $k$ is:
       with $\alpha = (K+\sigma_{noise}^2I)^{-1}y$, $K=(k(x_i,x_j))_{i,j=1, \dots, n}$.
       Below we use the Gaussian kernel : $${k(x,x') = e^{-\frac{(x-x')^2}{2\sigma_{scale}^2}}.}$$
+    </p>
+
+    <p>Let $I$ be a compact segment of $\mathbb{R}$. Denote by $\mathbb{G}$ the set of linear combinations of the family $(k(x, \cdot))_{x\in I}$.
+       $\mathbb{G}$ forms a subalgebra of $\mathcal{C}(I)$
+      (the product of the two Gaussian functions with the same scale parameter is also a Gaussian function with same scale, by completing the square in the exponential).
+      Moreover, there is no point $a\in I$ such that all functions in $\mathbb{G}$ vanish at $a$ (for example the Gaussian centered at $a$ does not), and $\mathbb{G}$ separates
+      points (if $a, b\in I$, the Gaussian centered at $a$ takes a different value at $b$). Therefore the Stone-Weierstrass theorem holds:
+      $${\mathbb{G} \text{ is dense in } \mathcal{C}(I)} \text{ for the topology of uniform convergence}.$$
+    </p>
+
+    <p>Let's verify this numerically by building an approximation of $f(x) = \lvert x \rvert$ on $I=[0,1]$ inspired by the GP regression formula. Choose a scale parameter:
+      with few points and small scale, the approximation looks very spiky (in the limit, infinitely concentrated Gaussians are Dirac masses). With the same scale and more points,
+      the magnitude of the spikes decreases and the sum of Gaussian seems, at least visually, to uniformly approach the graph of the absolute value.
     </p>
 
     {{ super() }}
