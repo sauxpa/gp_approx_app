@@ -24,6 +24,10 @@ class Kernel():
             return np.exp(-np.abs(x-y)**2/(2*self.scale**2))
         elif self.kernel_name == 'exp':
             return np.exp(-np.abs(x-y)/self.scale)
+        elif self.kernel_name == 'band':
+            return np.abs(x-y)<self.scale
+        elif self.kernel_name == 'sinc':
+            return np.sinc((x-y)/self.scale)/self.scale
         else:
             raise Exception('{} not implemented!'.format(self.kernel_name))
 

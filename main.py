@@ -48,8 +48,8 @@ def make_plot(src):
             )
 
     kernels_to_plot = [kernel_selection.labels[i] for i in kernel_selection.active]
-    colors = ['blue', 'orange']
     for i, kernel_name in enumerate(kernels_to_plot):
+        colors = ['blue', 'orange', 'green', 'purple']
         # GP approximation
         fig.line('plot_points',
          kernel_name,
@@ -81,9 +81,8 @@ def update(attr, old, new):
 
 
 # select kernel
-available_kernels = ['gauss', 'exp']
-kernel_selection = CheckboxGroup(labels=available_kernels, active=[0, 1])
-kernel_selection.on_change('active', update)
+available_kernels = ['gauss', 'exp', 'band', 'sinc']
+kernel_selection = CheckboxGroup(labels=available_kernels, active=list(range(len(available_kernels))))
 
 # Slider to select n
 n_select = Slider(start=1,
@@ -110,6 +109,7 @@ lognoise_select = Slider(start=-3.0,
                          )
 
 # Update the plot when the value is changed
+kernel_selection.on_change('active', update)
 n_select.on_change('value', update)
 logscale_select.on_change('value', update)
 lognoise_select.on_change('value', update)
@@ -118,7 +118,7 @@ lognoise_select.on_change('value', update)
 def f(x):
     return np.abs(x)
 
-initial_kernels = ['gauss', 'exp']
+initial_kernels = ['gauss', 'exp', 'band', 'sinc']
 
 src = make_dataset(f,
                    initial_kernels,
