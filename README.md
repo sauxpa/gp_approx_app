@@ -9,10 +9,14 @@ To run the app :
 Have fun!
 
 
+<img src="./scale_increase.gif"
+     alt="1e-3 noise, 16 points, scale increase"
+     style="float: left; margin-right: 10px;" />
+     
 <img src="./spiky_approx.png"
-     alt="1e-3 noise, 1e-1.4 scale, 16 points"
+     alt="1e-3 noise, 1e-1.4 scale, 16 points, Gaussian kernel"
      style="float: left; margin-right: 10px;" />
      
 <img src="./smooth_approx.png"
-     alt="1e-3 noise, 1e-1.4 scale, 32 points"
+     alt="1e-3 noise, 1e-1.4 scale, 32 points, Gaussian kernel"
      style="float: left; margin-right: 10px;" />
