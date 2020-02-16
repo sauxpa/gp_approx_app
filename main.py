@@ -9,19 +9,21 @@ from bokeh.models.widgets import CheckboxGroup, Slider, Tabs
 from bokeh.layouts import row, WidgetBox
 
 
-def make_dataset(f, n=1, scale=1.0, noise=0.1):
+def make_dataset(f, kernels_to_plot, n=16, scale=1.0, noise=0.1):
     xx = np.linspace(-1, 1, 1e3)
     df = pd.DataFrame({'plot_points': xx, 'f': f(xx)}).set_index('plot_points')
 
     data = np.linspace(-1, 1, n)
     y = f(data)
-    kernel = Kernel(data=data, y=y, scale=scale, noise=noise)
 
-    approx_f = np.zeros(xx.shape)
-    for weight, func in zip(kernel.weights(), kernel.basis()):
-        y = func(xx)
-        approx_f += weight*y
-    df['GP'] = approx_f
+    for kernel_name in kernels_to_plot:
+        kernel = Kernel(data=data, y=y, scale=scale, noise=noise, kernel_name=kernel_name)
+
+        approx_f = np.zeros(xx.shape)
+        for weight, func in zip(kernel.weights(), kernel.basis()):
+            fx = func(xx)
+            approx_f += weight*fx
+        df[kernel_name] = approx_f
 
     # Convert dataframe to column data source
     return ColumnDataSource(df)
@@ -45,29 +47,43 @@ def make_plot(src):
              line_color = 'red'
             )
 
-    # GP approximation
-    fig.line('plot_points',
-     'GP',
-     source = src,
-     color = 'color',
-     legend = 'GP approximation',
-     line_color = 'blue'
-    )
+    kernels_to_plot = [kernel_selection.labels[i] for i in kernel_selection.active]
+    colors = ['blue', 'orange']
+    for i, kernel_name in enumerate(kernels_to_plot):
+        # GP approximation
+        fig.line('plot_points',
+         kernel_name,
+         source = src,
+         color = 'color',
+         legend = 'GP approximation ({})'.format(kernel_name),
+         line_color = colors[i]
+        )
+
+    fig.legend.click_policy = 'hide'
 
     return fig
 
 
 def update(attr, old, new):
+    # change kernels to plot
+    kernels_to_plot = [kernel_selection.labels[i] for i in kernel_selection.active]
+
     # Change n to selected value
     n = n_select.value
     scale = 10**logscale_select.value
     noise = 10**lognoise_select.value
 
     # Create new ColumnDataSource
-    new_src = make_dataset(f, n=n, scale=scale, noise=noise)
+    new_src = make_dataset(f, kernels_to_plot, n=n, scale=scale, noise=noise)
 
     # Update the data on the plot
     src.data.update(new_src.data)
+
+
+# select kernel
+available_kernels = ['gauss', 'exp']
+kernel_selection = CheckboxGroup(labels=available_kernels, active=[0, 1])
+kernel_selection.on_change('active', update)
 
 # Slider to select n
 n_select = Slider(start=1,
@@ -102,9 +118,16 @@ lognoise_select.on_change('value', update)
 def f(x):
     return np.abs(x)
 
-src = make_dataset(f=f)
+initial_kernels = ['gauss', 'exp']
+
+src = make_dataset(f,
+                   initial_kernels,
+                   n=n_select.value,
+                   scale=10**logscale_select.value,
+                   noise=10**lognoise_select.value,
+                   )
 fig = make_plot(src)
-controls = WidgetBox(n_select, logscale_select, lognoise_select)
+controls = WidgetBox(kernel_selection, n_select, logscale_select, lognoise_select)
 
 # Create a row layout
 layout = row(controls, fig)
