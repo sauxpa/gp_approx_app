@@ -10,7 +10,7 @@
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
 {% extends base %}
 
-{% block title %}Bokeh Gapminder Example{% endblock %}
+{% block title %}Uniform approximation by Gaussian and GP regression{% endblock %}
 
 {% block postamble %}
   <style>
@@ -22,12 +22,16 @@
   <div class="content">
     <h1>GP approximation of continuous functions on a compact interval</h1>
 
+    <h2>GP Regression
+    </h2>
       <p> Given $n$ observations $y_1, \dots, y_n$ of a continuous function $f$ at $x_1, \dots, x_n$, the GP regression formula with kernel $k$ is
         $${\hat{f}(x) = \sum_{i=1}^n \alpha_i k(x_i, x)}$$
-      with $\alpha = (K+\sigma_{noise}^2I)^{-1}y$, $K=(k(x_i,x_j))_{i,j=1, \dots, n}$.
+      with $\alpha = (K_n+\sigma_{noise}^2I)^{-1}y, K_n=(k(x_i,x_j))_{i,j=1, \dots, n}$.
       Below we use the Gaussian kernel : $${k_{gauss}(x,x') = e^{-\frac{(x-x')^2}{2\sigma_{scale}^2}}.}$$
     </p>
 
+    <h2>Stone-Weierstrass theorem
+    </h2>
     <p>Let $I$ be a compact segment of $\mathbb{R}$. Denote by $\mathbb{G}$ the set of linear combinations of the family $(k(x, \cdot))_{x\in I, \sigma_{scale}>0}$.
        $\mathbb{G}$ forms a subalgebra of $\mathcal{C}(I)$
       (the product of the two Gaussian functions is also a Gaussian function, by completing the square in the exponential).
@@ -36,6 +40,54 @@
       $${\mathbb{G} \text{ is dense in } \mathcal{C}(I)} \text{ for the topology of uniform convergence}.$$
     </p>
 
+    <h2>Proof of uniform convergence of GP regression
+    </h2>
+    <p>Although helpful, this is of limited practical interest as it does not provide an explicit approximation sequence. On the other hand, the GP regression
+      formula gives an explicit (if perhaps intractable in high number of samples due to the matrix inversion) construction, with the extra benefit of
+      keeping the scale parameter constant. Let's prove that this sequence indeed converges uniformly for an arbitrary choice of $f$ continuous on a compact segment.
+    </p>
+
+    <p>Without loss of generality, let's consider $I=[0,1]$ and $x_i=\frac{i}{n}$ for $i=1,\dots,n$ (any sequence of points that uniformly covers $I$ would work).
+      Let $x\in I$, $f_n^*(x)$ be the posterior after observing $(x_i)_{i=1,\dots,n}$, i.e $\hat{f_n}(x)=\mathbb{E}[f_n^*(x)\lvert (x_i), y, x]$. The goal is to show that
+      $\mathbb{E}[f_n^*(x)-f(x)\lvert (x_i), y, x]$ converges to zero uniformly in $x\in I$.
+    </p>
+
+    <p> Let $\delta>0$ and consider $\mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big)$ (we will drop the conditioning on data from now on). Chebyshev's inequality yields:
+      $${
+        \mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big) \leq
+      \frac{\mathbb{V}(f_n^*(x))}{\delta^2} = \frac{k(x,x)-k(x, (x_i))(K_n+\sigma_{noise}^2 I)^{-1}k((x_i),x)}{\delta^2}
+    }.$$
+    Therefore controlling the posterior variance is enough to control the probability of large deviation.
+    </p>
+
+    <p>Fortunately, the variance after observing $n$ points can be controlled by the variance of the estimator based on the closest point to $x$ (in fact it is a general result
+      posterior variance for GP regression is monotonic in the number of data points), Let $x^*_n = argmin_{x_i} \lVert x-x_i \rVert$.
+      $${
+        k(x,x)-k(x, (x_i))(K_n+\sigma_{noise}^2 I)^{-1}k((x_i),x) \leq k(x,x)-\frac{k(x, x^*_n)^2}{k(x^*_n, x^*_n)+\sigma_{noise}^2}.
+      }$$
+      Since $k$ is continuous on the compact $I$ it is uniformly continuous, and by definition of the grid $(x_i)_{i=1,\dots,n}$, $k(x, x^*_n)\rightarrow k(x,x)=1$ uniformly in $x$
+      as $n\rightarrow \infty$. Therefore assuming $\sigma_{noise}^2$ decreases to $0$ with $n$, the variance uniformly vanishes when $n\rightarrow \infty$.
+      Note that a stronger result holds and shows the convergence to zero of the posterior variance even in the case of fixed noise (basically the same proof but consider a small
+      ball around $x$ to get a refined bound; again uniform continuity helps extending the result uniformly in $x$).
+    </p>
+
+    <p>We are almost done: since $f$ is bounded (again, continuous on a compact), we can split the expectation and controls both parts separately:
+      $${
+        \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \lvert (x_i), y, x] = \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \mathbb{1}_{\lvert f_n^*(x)-f(x) \rvert >\delta} \lvert (x_i), y, x]
+      }$$
+      $${
+        + \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \mathbb{1}_{\lvert f_n^*(x)-f(x) \rvert\leq\delta} \lvert (x_i), y, x]
+      }$$
+      $${
+        \leq  \sqrt{\mathbb{V}(f_n^*(x)-f(x))} \sqrt{\mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big)} + \delta
+      }$$
+      where the last line follows from Cauchy-Schwarz's inequality. This last bound can be made arbitrarily small uniformly in $x\in I$.
+    </p>
+
+    Note that the proof extends naturally for other kernels, as long as they are continuous on $I$.
+
+    <h2>Numerical experiments
+    </h2>
     <p>Let's verify this numerically by building an approximation of $f(x) = \lvert x \rvert$ on $I=[0,1]$ inspired by the GP regression formula. Choose a scale parameter:
       with few points and small scale, the approximation looks very spiky (in the limit, infinitely concentrated Gaussians are Dirac masses). With the same scale and more points,
       the magnitude of the spikes decreases and the sum of Gaussian seems, at least visually, to uniformly approach the graph of the absolute value.
@@ -45,11 +97,14 @@
       $${k_{exp}(x,x')=e^{-\frac{\lvert x-x' \rvert}{\sigma_{scale}}}}$$
       $${k_{band}(x,x')=\mathbb{1}_{\lvert x-x' \rvert \leq \sigma_{scale}}}$$
       $${k_{sinc}(x,x')=\frac{1}{\sigma_{scale}} sinc(\frac{x-x'}{\sigma_{scale}}) }$$
+    </p>
 
+    <p>
+    In addition to the absolute value, one may consider continuous yet rougher functions, for instance realization of Brownian motion. The result above shows that the
+    GP regression uniformly approximates the given path, although the rate of convergence is likely much slower than for a smoother signal.
     </p>
 
     {{ super() }}
-
 
   </div>
 {% endblock %}
