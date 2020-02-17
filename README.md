@@ -1,6 +1,10 @@
 # gp_approx_app
 
-Bokeh-powered web app to visualize approximation of a continuous function (here absolute value) over a compact interval by a sequence of Gaussian functions, following the representer theorem/GP regression formula.
+Bokeh-powered web app to visualize approximation of continuous functions over a compact interval by a sequence of Gaussian functions, following the representer theorem/GP regression formula.
+
+Available examples:
+* Absolute value,
+* Realization of Brownian motion.
 
 To run the app :
 * clone the repo
