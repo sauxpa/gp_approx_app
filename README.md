@@ -1,5 +1,7 @@
 # gp_approx_app
 
+[GP Uniform Approximation](./GP_uniform_approximation.html)
+
 Bokeh-powered web app to visualize approximation of continuous functions over a compact interval by a sequence of Gaussian functions, following the representer theorem/GP regression formula.
 
 Available examples:
