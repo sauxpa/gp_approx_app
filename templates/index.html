@@ -47,44 +47,35 @@
       keeping the scale parameter constant. Let's prove that this sequence indeed converges uniformly for an arbitrary choice of $f$ continuous on a compact segment.
     </p>
 
-    <p>Without loss of generality, let's consider $I=[0,1]$ and $x_i=\frac{i}{n}$ for $i=1,\dots,n$ (any sequence of points that uniformly covers $I$ would work).
+    <p>Let us consider for now an arbitrary sequence of points $(x_i)_{i=1, \dots, n}$ in $I$ (we will see that for the approximation to be uniform this sequence needs
+      to uniformly cover the compact $I$, which is quite intuitive).
       Let $x\in I$, $f_n^*(x)$ be the posterior after observing $(x_i)_{i=1,\dots,n}$, i.e $\hat{f_n}(x)=\mathbb{E}[f_n^*(x)\lvert (x_i), y, x]$. The goal is to show that
       $\mathbb{E}[f_n^*(x)-f(x)\lvert (x_i), y, x]$ converges to zero uniformly in $x\in I$.
     </p>
 
-    <p> Let $\delta>0$ and consider $\mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big)$ (we will drop the conditioning on data from now on). Chebyshev's inequality yields:
-      $${
-        \mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big) \leq
-      \frac{\mathbb{V}(f_n^*(x))}{\delta^2} = \frac{k(x,x)-k(x, (x_i))(K_n+\sigma_{noise}^2 I)^{-1}k((x_i),x)}{\delta^2}
-    }.$$
-    Therefore controlling the posterior variance is enough to control the probability of large deviation.
-    </p>
-
-    <p>Fortunately, the variance after observing $n$ points can be controlled by the variance of the estimator based on the closest point to $x$ (in fact it is a general result
-      posterior variance for GP regression is monotonic in the number of data points), Let $x^*_n = argmin_{x_i} \lVert x-x_i \rVert$.
+    <p> A good start is to show that the variance uniformly vanishes with the $n$. Fortunately, the variance after observing $n$ points can be controlled by the variance
+      of the estimator based on the closest point to $x$ (in fact it is a general result that posterior variance for GP regression is monotonic in the number of data points).
+      Let $x^*_n = argmin_{x_i} \lVert x-x_i \rVert$.
       $${
         k(x,x)-k(x, (x_i))(K_n+\sigma_{noise}^2 I)^{-1}k((x_i),x) \leq k(x,x)-\frac{k(x, x^*_n)^2}{k(x^*_n, x^*_n)+\sigma_{noise}^2}.
       }$$
       Since $k$ is continuous on the compact $I$ it is uniformly continuous, and by definition of the grid $(x_i)_{i=1,\dots,n}$, $k(x, x^*_n)\rightarrow k(x,x)=1$ uniformly in $x$
-      as $n\rightarrow \infty$. Therefore assuming $\sigma_{noise}^2$ decreases to $0$ with $n$, the variance uniformly vanishes when $n\rightarrow \infty$.
+      as $n\rightarrow \infty$.
+      Therefore assuming $\sigma_{noise}^2$ decreases to $0$ with $n$, the variance uniformly vanishes when $n\rightarrow \infty$.
       Note that a stronger result holds and shows the convergence to zero of the posterior variance even in the case of fixed noise (basically the same proof but consider a small
       ball around $x$ to get a refined bound; again uniform continuity helps extending the result uniformly in $x$).
     </p>
 
-    <p>We are almost done: since $f$ is bounded (again, continuous on a compact), we can split the expectation and controls both parts separately:
+    <p>We are almost done: thanks to Cauchy-Schwarz's inequality, the expected approximation error is controlled by the posterior variance:
       $${
-        \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \lvert (x_i), y, x] = \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \mathbb{1}_{\lvert f_n^*(x)-f(x) \rvert >\delta} \lvert (x_i), y, x]
+        \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \lvert (x_i), y, x] \leq  \sqrt{\mathbb{V}(f_n^*(x)-f(x))}
       }$$
-      $${
-        + \mathbb{E}[\lvert f_n^*(x)-f(x) \rvert \mathbb{1}_{\lvert f_n^*(x)-f(x) \rvert\leq\delta} \lvert (x_i), y, x]
-      }$$
-      $${
-        \leq  \sqrt{\mathbb{V}(f_n^*(x)-f(x))} \sqrt{\mathbb{P}\big(\lvert f_n^*(x)-f(x) \rvert > \delta\big)} + \delta
-      }$$
-      where the last line follows from Cauchy-Schwarz's inequality. This last bound can be made arbitrarily small uniformly in $x\in I$.
+      and we have seen that the right-hand side can be made arbitrarily small uniformly in $x\in I$.
     </p>
 
+    <p>
     Note that the proof extends naturally for other kernels, as long as they are continuous on $I$.
+  </p>
 
     <h2>Numerical experiments
     </h2>
