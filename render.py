@@ -16,7 +16,7 @@ def make_dataset(f,
                  ):
     """Creates a ColumnDataSource object with data to plot.
     """
-    xx = np.linspace(xstart, xend, 1e3)
+    xx = np.linspace(xstart, xend, int(1e3))
     df = pd.DataFrame({'plot_points': xx, 'f': f(xx)}).set_index('plot_points')
 
     data = np.linspace(xstart, xend, n)
